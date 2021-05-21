@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: new Container(
                   decoration: new BoxDecoration(
-                      color: Color(0xFF1C1C1E).withOpacity(0.6)),
+                      color: Color(0xFF1C1C1E).withOpacity(0.65)),
                 ),
               ),
             ),
@@ -63,6 +63,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add your onPressed code here!
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Color(0xFF1C1C1E),
       ),
     );
   }
