@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:evex/components/list_item.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +14,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFEEEEEE),
       body: CustomScrollView(
         slivers: <Widget>[
           // Add the app bar to the CustomScrollView.
@@ -57,7 +59,7 @@ class _HomePageState extends State<HomePage> {
             delegate: SliverChildBuilderDelegate(
               // The builder function returns a ListTile with a title that
               // displays the index of the current item.
-              (context, index) => ListTile(title: Text('Item #$index')),
+              (context, index) => ListItem(),
               // Builds 1000 ListTiles
               childCount: 1000,
             ),
