@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:evex/components/list_item.dart';
+import 'package:evex/pages/createEvent.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -68,7 +69,10 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add your onPressed code here!
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreateEvent()),
+          );
         },
         child: const Icon(Icons.add),
         backgroundColor: Color(0xFF1C1C1E),
