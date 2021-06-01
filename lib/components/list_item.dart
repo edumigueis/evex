@@ -1,9 +1,12 @@
+import 'package:evex/models/event.dart';
 import 'package:evex/pages/event.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 class ListItem extends StatelessWidget {
-  ListItem({Key key}) : super(key: key);
+  ListItem({Key key, this.event}) : super(key: key);
+
+  final Event event;
 
   final colors = [
     Color(0xFFFFD23F),
@@ -27,7 +30,8 @@ class ListItem extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => EventPage(code: 1, color: colors[nm])),
+                builder: (context) =>
+                    EventPage(event: this.event, color: colors[nm])),
           );
         },
         child: Container(
@@ -54,7 +58,7 @@ class ListItem extends StatelessWidget {
                                   fontSize: 11.0),
                             ),
                             Text(
-                              "Weekly Briefing",
+                              event.title,
                               style: TextStyle(
                                   color: Color(0xFF1C1C1E),
                                   fontWeight: FontWeight.w600,

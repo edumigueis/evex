@@ -18,9 +18,9 @@ class _CreateEventPageState extends State<CreateEvent> {
     return Scaffold(
       backgroundColor: Color(0xFFEEEEEE),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF1C1C1E),
         elevation: 0.0,
-        iconTheme: IconThemeData(color: Color(0xFF1C1C1E)),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       extendBodyBehindAppBar: false,
       body: ListView(
@@ -212,7 +212,7 @@ class _CreateEventPageState extends State<CreateEvent> {
                   Padding(
                     padding: EdgeInsets.only(bottom: 10),
                     child: Text(
-                      "Location",
+                      "Date",
                       style: TextStyle(
                           color: Color(0xFF1C1C1E),
                           fontWeight: FontWeight.w500,

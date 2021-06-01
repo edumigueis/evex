@@ -1,8 +1,10 @@
 import 'dart:ui';
-
+import 'package:evex/models/event.dart';
 import 'package:evex/components/list_item.dart';
 import 'package:evex/pages/createEvent.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -12,6 +14,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<List<Event>> _fetchData() async {
+    final response = await http
+        .get(Uri.parse('http://localhost:3000/eventos/participo?id=' + '1'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List<Event> ret = [];
+      for (int i = 0; i < response.body.length; i++) {
+        ret.add(Event.fromJson(jsonDecode(response.body[i])));
+      }
+      return ret;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load');
+    }
+  }
+
+  initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  List<Event> events = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,9 +88,8 @@ class _HomePageState extends State<HomePage> {
             delegate: SliverChildBuilderDelegate(
               // The builder function returns a ListTile with a title that
               // displays the index of the current item.
-              (context, index) => ListItem(),
-              // Builds 1000 ListTiles
-              childCount: 1000,
+              (context, index) => ListItem(event: events[index]),
+              childCount: events.length,
             ),
           ),
         ],

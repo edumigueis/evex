@@ -1,10 +1,11 @@
+import 'package:evex/models/event.dart';
 import 'package:flutter/material.dart';
 
 class EventPage extends StatefulWidget {
-  EventPage({Key key, this.color, this.code}) : super(key: key);
+  EventPage({Key key, this.color, this.event}) : super(key: key);
 
   final Color color;
-  final int code;
+  final Event event;
 
   @override
   _EventPageState createState() => _EventPageState();
