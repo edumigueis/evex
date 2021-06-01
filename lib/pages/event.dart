@@ -38,7 +38,7 @@ class _EventPageState extends State<EventPage> {
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                     child: Text(
-                      "Weekly Briefing",
+                      widget.event.title,
                       style: TextStyle(
                           color: Color(0xFF1C1C1E),
                           fontWeight: FontWeight.w600,
@@ -62,7 +62,7 @@ class _EventPageState extends State<EventPage> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("MEETING - Work",
+                        Text(widget.event.type.toString(),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w500,
@@ -85,8 +85,7 @@ class _EventPageState extends State<EventPage> {
                   ),
                   Padding(
                       padding: EdgeInsets.only(bottom: 10),
-                      child: Text(
-                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ultrices convallis nisl, vitae blandit enim egestas nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ultrices convallis nisl, vitae blandit enim egestas nec. https://meet.google.com/lookup/bvsj5mbm",
+                      child: Text(widget.event.description,
                           style: TextStyle(
                               color: Color(0xFF1C1C1E),
                               fontWeight: FontWeight.w400,

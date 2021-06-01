@@ -14,16 +14,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Event> events = [];
+
   Future<List<Event>> _fetchData() async {
-    final response = await http
-        .get(Uri.parse('http://localhost:3000/eventos/participo?id=' + '1'));
+    final response =
+        await http.get(Uri.parse('http://143.106.202.70:3000/eventos'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
       List<Event> ret = [];
-      for (int i = 0; i < response.body.length; i++) {
-        ret.add(Event.fromJson(jsonDecode(response.body[i])));
+      int length = jsonDecode(response.body).length;
+      for (int i = 0; i < length; i++) {
+        ret.add(Event.fromJson(jsonDecode(response.body)[i]));
       }
       return ret;
     } else {
@@ -35,10 +38,12 @@ class _HomePageState extends State<HomePage> {
 
   initState() {
     super.initState();
-    _fetchData();
+    _fetchData().then((value) => {
+          setState(() {
+            events = value;
+          })
+        });
   }
-
-  List<Event> events = [];
 
   @override
   Widget build(BuildContext context) {

@@ -15,11 +15,11 @@ class Event {
     return Event(
       json['id'],
       json['titulo'],
-      json['descricao'],
+      json['descricao'] != null ? json['descricao'] : "",
       json['responsavel'],
       json['tipo'],
       json['subtipo'],
-      json['datahora'],
+      DateTime.parse(json['datahora']),
       json['localizacao'],
     );
   }
