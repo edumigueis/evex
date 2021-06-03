@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:evex/models/tipo.dart';
+import 'package:evex/models/localizacao.dart';
+import 'package:evex/pages/home_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CreateEvent extends StatefulWidget {
   CreateEvent({Key key}) : super(key: key);
@@ -9,10 +14,84 @@ class CreateEvent extends StatefulWidget {
 }
 
 class _CreateEventPageState extends State<CreateEvent> {
-  String dropdownValue = 'One';
-  String dropdownValueLoc = 'One';
+  List<Tipo> types = [];
+  List<Localizacao> locations = [];
+
+  Tipo dropdownCurType;
+  Localizacao dropdownCurLocation;
   DateTime selectedDate = DateTime.now();
-  _register() {}
+
+  Future<List<Tipo>> _fetchTypes() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.1.100:3000/tipos'));
+
+    if (response.statusCode == 200) {
+      List<Tipo> ret = [];
+      int length = jsonDecode(response.body).length;
+      for (int i = 0; i < length; i++)
+        ret.add(Tipo.fromJson(jsonDecode(response.body)[i]));
+      return ret;
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
+  Future<List<Localizacao>> _fetchLocations() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.1.100:3000/locais'));
+
+    if (response.statusCode == 200) {
+      List<Localizacao> ret = [];
+      int length = jsonDecode(response.body).length;
+      for (int i = 0; i < length; i++)
+        ret.add(Localizacao.fromJson(jsonDecode(response.body)[i]));
+      return ret;
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
+  initState() {
+    super.initState();
+    _fetchTypes().then((value) => {
+          setState(() {
+            types = value;
+            dropdownCurType = types[0];
+          })
+        });
+    _fetchLocations().then((value) => {
+          setState(() {
+            locations = value;
+            dropdownCurLocation = locations[0];
+          })
+        });
+  }
+
+  void _register() async {
+    var response = await http.post(
+      Uri.parse('http://192.168.1.100:3000/eventos'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'titulo': _titleController.text,
+        'descricao': _descController.text,
+        'responsavel': 1.toString(),
+        'tipo': dropdownCurType.id.toString(),
+        'subtipo': null,
+        'datahora': selectedDate.toString(),
+        'localizacao': dropdownCurLocation.id.toString(),
+      }),
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+  }
+
+  final _titleController = TextEditingController();
+  final _descController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +141,7 @@ class _CreateEventPageState extends State<CreateEvent> {
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
                         )),
+                    controller: _titleController,
                   )
                 ],
               )),
@@ -103,6 +183,7 @@ class _CreateEventPageState extends State<CreateEvent> {
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
                         )),
+                    controller: _descController,
                   )
                 ],
               )),
@@ -129,29 +210,35 @@ class _CreateEventPageState extends State<CreateEvent> {
                       color: Colors.white,
                     ),
                     child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButton<String>(
-                          value: dropdownValue,
-                          underline: SizedBox(),
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                              color: Color(0xFF1C1C1E)),
-                          iconSize: 24,
-                          dropdownColor: Colors.white,
-                          style: const TextStyle(color: Color(0xFF1C1C1E)),
-                          onChanged: (String newValue) {
-                            setState(() {
-                              dropdownValue = newValue;
-                            });
-                          },
-                          isExpanded: true,
-                          items: <String>['One', 'Two', 'Free', 'Four']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        )),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButton<Tipo>(
+                        value: dropdownCurType,
+                        underline: SizedBox(),
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF1C1C1E)),
+                        iconSize: 24,
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(color: Color(0xFF1C1C1E)),
+                        onChanged: (Tipo newValue) {
+                          setState(() {
+                            dropdownCurType = newValue;
+                          });
+                        },
+                        isExpanded: true,
+                        items: types.map((Tipo tipo) {
+                          return new DropdownMenuItem<Tipo>(
+                            value: tipo,
+                            child: new Text(
+                              tipo.nome,
+                              style: new TextStyle(
+                                  color: Color(0xFF1C1C1E),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   )
                 ],
               )),
@@ -178,29 +265,35 @@ class _CreateEventPageState extends State<CreateEvent> {
                       color: Colors.white,
                     ),
                     child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButton<String>(
-                          value: dropdownValueLoc,
-                          underline: SizedBox(),
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                              color: Color(0xFF1C1C1E)),
-                          iconSize: 24,
-                          dropdownColor: Colors.white,
-                          style: const TextStyle(color: Color(0xFF1C1C1E)),
-                          onChanged: (String newValue) {
-                            setState(() {
-                              dropdownValueLoc = newValue;
-                            });
-                          },
-                          isExpanded: true,
-                          items: <String>['One', 'Two', 'Free', 'Four']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        )),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButton<Localizacao>(
+                        value: dropdownCurLocation,
+                        underline: SizedBox(),
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF1C1C1E)),
+                        iconSize: 24,
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(color: Color(0xFF1C1C1E)),
+                        onChanged: (Localizacao newValue) {
+                          setState(() {
+                            dropdownCurLocation = newValue;
+                          });
+                        },
+                        isExpanded: true,
+                        items: locations.map((Localizacao localizacao) {
+                          return new DropdownMenuItem<Localizacao>(
+                            value: localizacao,
+                            child: new Text(
+                              localizacao.nome,
+                              style: new TextStyle(
+                                  color: Color(0xFF1C1C1E),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   )
                 ],
               )),

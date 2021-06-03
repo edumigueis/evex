@@ -18,7 +18,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Event>> _fetchData() async {
     final response =
-        await http.get(Uri.parse('http://143.106.202.70:3000/eventos'));
+        await http.get(Uri.parse('http://192.168.1.100:3000/eventos'));
+
+    print(response.body);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> {
       for (int i = 0; i < length; i++) {
         ret.add(Event.fromJson(jsonDecode(response.body)[i]));
       }
+      print(ret.toString());
       return ret;
     } else {
       // If the server did not return a 200 OK response,

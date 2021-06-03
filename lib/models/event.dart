@@ -1,12 +1,19 @@
+import 'package:evex/models/localizacao.dart';
+
+import 'funcionario.dart';
+import 'tipo.dart';
+import 'subtipo.dart';
+import 'localizacao.dart';
+
 class Event {
   final int id;
   final String title;
   final String description;
-  final int creator;
-  final int type;
-  final int subtype;
+  final Funcionario creator;
+  final Tipo type;
+  final Subtipo subtype;
   final DateTime date;
-  final int location;
+  final Localizacao location;
 
   Event(this.id, this.title, this.description, this.creator, this.type,
       this.subtype, this.date, this.location);
@@ -16,11 +23,11 @@ class Event {
       json['id'],
       json['titulo'],
       json['descricao'] != null ? json['descricao'] : "",
-      json['responsavel'],
-      json['tipo'],
-      json['subtipo'],
+      Funcionario.fromJson(json['responsavel']),
+      Tipo.fromJson(json['tipo']),
+      json['subtipo'] != null ? Subtipo.fromJson(json['subtipo']) : null,
       DateTime.parse(json['datahora']),
-      json['localizacao'],
+      Localizacao.fromJson(json['localizacao']),
     );
   }
 }

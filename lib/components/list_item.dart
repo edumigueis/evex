@@ -1,6 +1,7 @@
 import 'package:evex/models/event.dart';
 import 'package:evex/pages/event.dart';
 import 'package:flutter/material.dart';
+import 'package:evex/utils/date_format.dart';
 import 'dart:math';
 
 class ListItem extends StatelessWidget {
@@ -51,11 +52,11 @@ class ListItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "MEETING",
+                              event.type.nome,
                               style: TextStyle(
                                   color: Colors.black26,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 11.0),
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12.0),
                             ),
                             Text(
                               event.title,
@@ -67,7 +68,7 @@ class ListItem extends StatelessWidget {
                             Padding(
                                 padding: EdgeInsets.only(top: 10),
                                 child: Text(
-                                  "Helena Coffer",
+                                  event.creator.nome,
                                   style: TextStyle(
                                       color: Colors.black38,
                                       fontWeight: FontWeight.w400,
@@ -78,13 +79,13 @@ class ListItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text("JAN",
+                          Text(DateFormat.mesNome(event.date.month),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: Color(0xFF1C1C1E),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12.0)),
-                          Text("21",
+                          Text(event.date.day.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: Color(0xFF1C1C1E),

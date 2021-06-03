@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:evex/models/event.dart';
+import 'package:evex/models/funcionario.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:evex/components/participant_item.dart';
 
 class EventPage extends StatefulWidget {
   EventPage({Key key, this.color, this.event}) : super(key: key);
@@ -12,6 +18,33 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
+  List<Funcionario> participantes = [];
+
+  Future<List<Funcionario>> _fetchData() async {
+    final response = await http.get(Uri.parse(
+        'http://192.168.1.100:3000/participantes?evento=' +
+            widget.event.id.toString()));
+
+    if (response.statusCode == 200) {
+      List<Funcionario> ret = [];
+      int length = jsonDecode(response.body).length;
+      for (int i = 0; i < length; i++)
+        ret.add(Funcionario.fromJson(jsonDecode(response.body)[i]));
+      return ret;
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
+
+  initState() {
+    super.initState();
+    _fetchData().then((value) => {
+          setState(() {
+            participantes = value;
+          })
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +64,7 @@ class _EventPageState extends State<EventPage> {
         body: Column(children: [
           Container(
             color: Colors.white,
-            margin: EdgeInsets.only(top: 55),
+            margin: EdgeInsets.only(top: 70),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -62,27 +95,34 @@ class _EventPageState extends State<EventPage> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(widget.event.type.toString(),
+                        Text(widget.event.type.nome.toString(),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13.0)),
-                        Text("JAN 21, 3PM PST",
+                        Text(
+                            DateFormat('dd/MMM/yyyy H:m')
+                                .format(widget.event.date.toLocal())
+                                .toLowerCase(),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13.0))
                       ]),
                   Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 8),
-                    child: Text(
-                      "Details",
-                      style: TextStyle(
-                          color: Color(0xFF1C1C1E),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15.0),
-                    ),
-                  ),
+                      padding: EdgeInsets.only(top: 10, bottom: 8),
+                      child: () {
+                        if (widget.event.description != "") {
+                          return Text(
+                            "Details",
+                            style: TextStyle(
+                                color: Color(0xFF1C1C1E),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15.0),
+                          );
+                        } else
+                          return Text(" ");
+                      }()),
                   Padding(
                       padding: EdgeInsets.only(bottom: 10),
                       child: Text(widget.event.description,
@@ -105,79 +145,9 @@ class _EventPageState extends State<EventPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(children: [
-                            Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20)),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                        "https://images.pexels.com/photos/2078265/pexels-photo-2078265.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )),
-                            Padding(
-                                padding: EdgeInsets.only(left: 7),
-                                child: Text(
-                                  "Ron McRay",
-                                  style: TextStyle(
-                                      color: Color(0xFF1C1C1E),
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13.0),
-                                ))
-                          ]),
-                          SizedBox(height: 7),
-                          Row(children: [
-                            Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20)),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                        "https://images.pexels.com/photos/1674752/pexels-photo-1674752.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )),
-                            Padding(
-                                padding: EdgeInsets.only(left: 7),
-                                child: Text(
-                                  "Cardi Bay",
-                                  style: TextStyle(
-                                      color: Color(0xFF1C1C1E),
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13.0),
-                                ))
-                          ]),
-                          SizedBox(height: 7),
-                          Row(children: [
-                            Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20)),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                        "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )),
-                            Padding(
-                                padding: EdgeInsets.only(left: 7),
-                                child: Text(
-                                  "Troye Bixenman",
-                                  style: TextStyle(
-                                      color: Color(0xFF1C1C1E),
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13.0),
-                                ))
-                          ]),
-                        ],
+                        children: List.generate(participantes.length, (i) {
+                          return ParticipantItem(participant: participantes[i]);
+                        }),
                       )),
                 ],
               ))
