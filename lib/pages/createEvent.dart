@@ -1,3 +1,4 @@
+import 'package:evex/utils/consts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:evex/models/tipo.dart';
@@ -71,7 +72,7 @@ class _CreateEventPageState extends State<CreateEvent> {
   void _register() async {
     dynamic id = await FlutterSession().get("id");
     await http.post(
-      Uri.parse('http://192.168.1.100:3000/eventos'),
+      Uri.parse('http://'+ Consts.ip +'/eventos'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
