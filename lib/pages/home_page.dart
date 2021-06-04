@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:evex/utils/consts.dart';
 import 'package:evex/models/event.dart';
 import 'package:evex/components/list_item.dart';
 import 'package:evex/pages/createEvent.dart';
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Event>> _fetchData() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.100:3000/eventos'));
+        await http.get(Uri.parse('http://' + Consts.ip + '/eventos'));
 
     print(response.body);
 

@@ -5,6 +5,7 @@ import 'package:evex/models/funcionario.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:evex/utils/consts.dart';
 import 'package:evex/components/participant_item.dart';
 
 class EventPage extends StatefulWidget {
@@ -21,9 +22,10 @@ class _EventPageState extends State<EventPage> {
   List<Funcionario> participantes = [];
 
   Future<List<Funcionario>> _fetchData() async {
-    final response = await http.get(Uri.parse(
-        'http://192.168.1.100:3000/participantes?evento=' +
-            widget.event.id.toString()));
+    final response = await http.get(Uri.parse('http://' +
+        Consts.ip +
+        '/participantes?evento=' +
+        widget.event.id.toString()));
 
     if (response.statusCode == 200) {
       List<Funcionario> ret = [];

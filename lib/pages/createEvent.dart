@@ -25,7 +25,7 @@ class _CreateEventPageState extends State<CreateEvent> {
 
   Future<List<Tipo>> _fetchTypes() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.100:3000/tipos'));
+        await http.get(Uri.parse('http://' + Consts.ip + '/tipos'));
 
     if (response.statusCode == 200) {
       List<Tipo> ret = [];
@@ -40,7 +40,7 @@ class _CreateEventPageState extends State<CreateEvent> {
 
   Future<List<Localizacao>> _fetchLocations() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.100:3000/locais'));
+        await http.get(Uri.parse('http://' + Consts.ip + '/locais'));
 
     if (response.statusCode == 200) {
       List<Localizacao> ret = [];
@@ -72,7 +72,7 @@ class _CreateEventPageState extends State<CreateEvent> {
   void _register() async {
     dynamic id = await FlutterSession().get("id");
     await http.post(
-      Uri.parse('http://'+ Consts.ip +'/eventos'),
+      Uri.parse('http://' + Consts.ip + '/eventos'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
