@@ -5,6 +5,7 @@ import 'package:evex/models/localizacao.dart';
 import 'package:evex/pages/home_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_session/flutter_session.dart';
 
 class CreateEvent extends StatefulWidget {
   CreateEvent({Key key}) : super(key: key);
@@ -68,7 +69,8 @@ class _CreateEventPageState extends State<CreateEvent> {
   }
 
   void _register() async {
-    var response = await http.post(
+    dynamic id = await FlutterSession().get("id");
+    await http.post(
       Uri.parse('http://192.168.1.100:3000/eventos'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -76,7 +78,7 @@ class _CreateEventPageState extends State<CreateEvent> {
       body: jsonEncode(<String, String>{
         'titulo': _titleController.text,
         'descricao': _descController.text,
-        'responsavel': 1.toString(),
+        'responsavel': id.toString(),
         'tipo': dropdownCurType.id.toString(),
         'subtipo': null,
         'datahora': selectedDate.toString(),
