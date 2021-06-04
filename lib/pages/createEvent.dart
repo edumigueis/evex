@@ -1,3 +1,6 @@
+import 'package:evex/components/event_participant_item.dart';
+import 'package:evex/models/event.dart';
+import 'package:evex/models/funcionario.dart';
 import 'package:evex/utils/consts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -9,19 +12,36 @@ import 'dart:convert';
 import 'package:flutter_session/flutter_session.dart';
 
 class CreateEvent extends StatefulWidget {
-  CreateEvent({Key key}) : super(key: key);
+  CreateEvent({Key key, this.eventId}) : super(key: key);
+
+  final int eventId;
 
   @override
   _CreateEventPageState createState() => _CreateEventPageState();
 }
 
 class _CreateEventPageState extends State<CreateEvent> {
+  Event event;
   List<Tipo> types = [];
   List<Localizacao> locations = [];
+  List<Funcionario> participants = [];
+
+  dynamic sessionId;
 
   Tipo dropdownCurType;
   Localizacao dropdownCurLocation;
   DateTime selectedDate = DateTime.now();
+
+  Future<Event> _fetchEvent() async {
+    final response = await http.get(Uri.parse(
+        'http://' + Consts.ip + '/eventos?id=' + widget.eventId.toString()));
+
+    if (response.statusCode == 200) {
+      return Event.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load');
+    }
+  }
 
   Future<List<Tipo>> _fetchTypes() async {
     final response =
@@ -53,8 +73,46 @@ class _CreateEventPageState extends State<CreateEvent> {
     }
   }
 
+  Future<Funcionario> _fetchFuncionarioAtual() async {
+    sessionId = await FlutterSession().get("id");
+    return _fetchFuncionario(sessionId);
+  }
+
+  Future<Funcionario> _fetchFuncionario(int id) async {
+    final response = await http.get(
+        Uri.parse('http://' + Consts.ip + '/funcionarios?id=' + id.toString()));
+
+    if (response.statusCode == 200)
+      return Funcionario.fromJson(jsonDecode(response.body));
+    else
+      throw Exception('Failed to load');
+  }
+
+  void _addParticipant() async {
+    int partId = int.parse(_partController.text);
+    Funcionario part = await _fetchFuncionario(partId);
+    setState(() {
+      participants.add(part);
+    });
+    _partController.clear();
+  }
+
   initState() {
     super.initState();
+
+    if (widget.eventId != null) {
+      _fetchEvent().then((value) => {
+            setState(() {
+              event = value;
+              _titleController.text = event.title;
+              _descController.text = event.description;
+              dropdownCurType = event.type;
+              dropdownCurLocation = event.location;
+              selectedDate = event.date;
+            })
+          });
+    }
+
     _fetchTypes().then((value) => {
           setState(() {
             types = value;
@@ -67,25 +125,70 @@ class _CreateEventPageState extends State<CreateEvent> {
             dropdownCurLocation = locations[0];
           })
         });
+    _fetchFuncionarioAtual().then((value) => {
+          setState(() {
+            participants.add(value);
+          })
+        });
   }
 
   void _register() async {
     dynamic id = await FlutterSession().get("id");
-    await http.post(
-      Uri.parse('http://' + Consts.ip + '/eventos'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'titulo': _titleController.text,
-        'descricao': _descController.text,
-        'responsavel': id.toString(),
-        'tipo': dropdownCurType.id.toString(),
-        'subtipo': null,
-        'datahora': selectedDate.toString(),
-        'localizacao': dropdownCurLocation.id.toString(),
-      }),
-    );
+    var response;
+    if (widget.eventId == null) {
+      response = await http.post(
+        Uri.parse('http://' + Consts.ip + '/eventos'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'titulo': _titleController.text,
+          'descricao': _descController.text,
+          'responsavel': id.toString(),
+          'tipo': dropdownCurType.id.toString(),
+          'subtipo': null,
+          'datahora': selectedDate.toString(),
+          'localizacao': dropdownCurLocation.id.toString(),
+        }),
+      );
+    } else {
+      response = await http.put(
+        Uri.parse('http://' + Consts.ip + '/eventos'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'id': widget.eventId.toString(),
+          'titulo': _titleController.text,
+          'descricao': _descController.text,
+          'responsavel': id.toString(),
+          'tipo': dropdownCurType.id.toString(),
+          'subtipo': null,
+          'datahora': selectedDate.toString(),
+          'localizacao': dropdownCurLocation.id.toString(),
+        }),
+      );
+    }
+
+    int eventId;
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      eventId = int.parse(body.toString());
+    } else
+      throw Exception('Failed to load');
+
+    participants.forEach((p) async {
+      await http.post(
+        Uri.parse('http://' + Consts.ip + '/participantes'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'evento': eventId.toString(),
+          'funcionario': p.id.toString(),
+        }),
+      );
+    });
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => HomePage()),
@@ -94,6 +197,7 @@ class _CreateEventPageState extends State<CreateEvent> {
 
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
+  final _partController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -368,6 +472,55 @@ class _CreateEventPageState extends State<CreateEvent> {
                       ))
                 ],
               )),
+          Padding(
+              padding: EdgeInsets.only(left: 26, right: 26, top: 20),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Participants",
+                        style: TextStyle(
+                            color: Color(0xFF1C1C1E),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14)),
+                    TextField(
+                      autofocus: false,
+                      style:
+                          TextStyle(fontSize: 15.0, color: Color(0xFF1C1C1E)),
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.only(
+                              left: 14.0, bottom: 8.0, top: 8.0),
+                          border: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(8.0),
+                            ),
+                            borderSide: BorderSide(
+                              width: 0,
+                              style: BorderStyle.none,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          )),
+                      controller: _partController,
+                    ),
+                    TextButton.icon(
+                        onPressed: _addParticipant,
+                        icon: Icon(Icons.add),
+                        label: Text("Add participant")),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(participants.length, (i) {
+                        return EventParticipantItem(
+                          participant: participants[i],
+                          removable: participants[i].id != sessionId,
+                        );
+                      }),
+                    )
+                  ])),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 26, vertical: 40),
             child: SizedBox(

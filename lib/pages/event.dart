@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:evex/models/event.dart';
 import 'package:evex/models/funcionario.dart';
+import 'package:evex/pages/createEvent.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -36,6 +37,16 @@ class _EventPageState extends State<EventPage> {
     } else {
       throw Exception('Failed to load');
     }
+  }
+
+  void _editEvent() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CreateEvent(
+                eventId: widget.event.id,
+              )),
+    );
   }
 
   initState() {
@@ -151,6 +162,19 @@ class _EventPageState extends State<EventPage> {
                           return ParticipantItem(participant: participantes[i]);
                         }),
                       )),
+                  TextButton(
+                    child: Text(
+                      "Editar evento",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Color(0xFF1C1C1E))),
+                    onPressed: _editEvent,
+                  ),
                 ],
               ))
         ]));

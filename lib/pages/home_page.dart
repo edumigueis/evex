@@ -23,8 +23,6 @@ class _HomePageState extends State<HomePage> {
     final response =
         await http.get(Uri.parse('http://' + Consts.ip + '/eventos'));
 
-    print(response.body);
-
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
@@ -33,7 +31,6 @@ class _HomePageState extends State<HomePage> {
       for (int i = 0; i < length; i++) {
         ret.add(Event.fromJson(jsonDecode(response.body)[i]));
       }
-      print(ret.toString());
       return ret;
     } else {
       // If the server did not return a 200 OK response,
@@ -45,7 +42,6 @@ class _HomePageState extends State<HomePage> {
   _setId() async {
     await FlutterSession().set("id", int.parse(_idController.text));
     dynamic id = await FlutterSession().get("id");
-    print(id.toString());
   }
 
   initState() {

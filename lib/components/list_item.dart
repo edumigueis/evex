@@ -3,6 +3,7 @@ import 'package:evex/pages/event.dart';
 import 'package:flutter/material.dart';
 import 'package:evex/utils/date_format.dart';
 import 'dart:math';
+import 'package:flutter_session/flutter_session.dart';
 
 class ListItem extends StatelessWidget {
   ListItem({Key key, this.event}) : super(key: key);
@@ -66,14 +67,16 @@ class ListItem extends StatelessWidget {
                                   fontSize: 16.0),
                             ),
                             Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: Text(
-                                  event.creator.nome,
-                                  style: TextStyle(
-                                      color: Colors.black38,
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 13.0),
-                                ))
+                              padding: EdgeInsets.only(top: 10),
+                              child: () {
+                                //if (event.creator.id == )
+                                return Text(event.creator.nome,
+                                    style: TextStyle(
+                                        color: Colors.black38,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 13.0));
+                              }(),
+                            )
                           ]),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
