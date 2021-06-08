@@ -77,7 +77,7 @@ class _EventPageState extends State<EventPage> {
         body: Column(children: [
           Container(
             color: Colors.white,
-            margin: EdgeInsets.only(top: 70),
+            margin: EdgeInsets.only(top: 50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
